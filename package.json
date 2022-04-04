@@ -10,30 +10,13 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onDebug",
         "onCommand:openstack-tox.run-tox",
         "onCommand:openstack-tox.run-debug",
-        "onCommand:openstack-tox.run-debug-atline"
+        "onCommand:openstack-tox.run-test"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"debuggers": [
-			{
-				"type": "python",
-				"label": "tox python",
-				"runtime": "./.tox/debug/bin/python3",
-				"initialConfigurations": [
-					{
-						"name": "Python3: OpenStack Tox",
-						"type": "python",
-						"request": "launch",
-						"env": {},
-						"args": [
-							"tacker.tests.unit.vnfpkgm.test_controller.TestController.test_upload_vnf_package_from_uri_with_invalid_url_1_http___test_data_zip"	
-						]
-					}
-				]
-			}
-		],
 		"commands": [
 			{
 				"command": "openstack-tox.run-tox",
@@ -44,8 +27,8 @@
 				"title": "OpenStack Tox: Run Debug"
 			},
 			{
-				"command": "openstack-tox.run-debug-atline",
-				"title": "OpenStack Tox: Run Debug At Line"
+				"command": "openstack-tox.run-test",
+				"title": "OpenStack Tox: Run Test"
 			}
 		],
 		"menus": {
@@ -55,7 +38,7 @@
 					"when": "editorLangId == python"
 				},
 				{
-					"command": "openstack-tox.run-debug-atline",
+					"command": "openstack-tox.run-test",
 					"when": "editorLangId == python"
 				}
 			]
