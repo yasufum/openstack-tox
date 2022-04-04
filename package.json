@@ -1,0 +1,85 @@
+{
+  "name": "openstack-tox",
+	"displayName": "openstack-tox",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.65.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+        "onCommand:openstack-tox.run-tox",
+        "onCommand:openstack-tox.run-debug",
+        "onCommand:openstack-tox.run-debug-atline"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"debuggers": [
+			{
+				"type": "python",
+				"label": "tox python",
+				"runtime": "./.tox/debug/bin/python3",
+				"initialConfigurations": [
+					{
+						"name": "Python3: OpenStack Tox",
+						"type": "python",
+						"request": "launch",
+						"env": {},
+						"args": [
+							"tacker.tests.unit.vnfpkgm.test_controller.TestController.test_upload_vnf_package_from_uri_with_invalid_url_1_http___test_data_zip"	
+						]
+					}
+				]
+			}
+		],
+		"commands": [
+			{
+				"command": "openstack-tox.run-tox",
+				"title": "OpenStack Tox: Run Tox"
+			},
+			{
+				"command": "openstack-tox.run-debug",
+				"title": "OpenStack Tox: Run Debug"
+			},
+			{
+				"command": "openstack-tox.run-debug-atline",
+				"title": "OpenStack Tox: Run Debug At Line"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "openstack-tox.run-debug",
+					"when": "editorLangId == python"
+				},
+				{
+					"command": "openstack-tox.run-debug-atline",
+					"when": "editorLangId == python"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.65.0",
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.1.0",
+		"@types/node": "14.x",
+		"@typescript-eslint/eslint-plugin": "^5.16.0",
+		"@typescript-eslint/parser": "^5.16.0",
+		"eslint": "^8.11.0",
+		"glob": "^7.2.0",
+		"mocha": "^9.2.2",
+		"typescript": "^4.5.5",
+		"@vscode/test-electron": "^2.1.3"
+	}
+}
