@@ -15,8 +15,38 @@
         "onCommand:openstack-tox.run-debug",
         "onCommand:openstack-tox.run-test"
 	],
+	
 	"main": "./out/extension.js",
+
 	"contributes": {
+		"debuggers": [
+			{
+				"type": "mock",
+				"label": "My openstack mock debug",
+				"program": "./out/mockDebug.js",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"program"
+						],
+						"properties": {
+							"program": {
+								"type": "string",
+								"description": "Absolute path to a text file.",
+								"default": "${workspaceFolder}/${command:AskForProgramName}"
+							},
+							"stopOnEntry": {
+								"type": "boolean",
+								"description": "Automatically stop after launch.",
+								"default": true
+							}
+						}
+					}
+				}
+			}
+		],
+		
 		"commands": [
 			{
 				"command": "openstack-tox.run-tox",

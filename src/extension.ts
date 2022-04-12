@@ -133,13 +133,6 @@ export function activate(context: vscode.ExtensionContext) {
 					'Run tox test command atline');
 			}
 		},
-		{
-			 "name": "onDebug",
-			 "func": () => {
-				vscode.window.showInformationMessage(
-					'Run tox test command atline');
-			}
-		},
 	];
 
 	for (let i = 0; i < commands.length; i++) {
@@ -148,6 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 			cmd["name"], cmd["func"]!);
 		context.subscriptions.push(disposable);
 	}
+
 }
 
 // this method is called when your extension is deactivated
