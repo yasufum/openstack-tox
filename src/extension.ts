@@ -1,5 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
 
@@ -57,12 +58,17 @@ export function activate(context: vscode.ExtensionContext) {
 		if (lineAt) {
 			const allFuncs = _getAllFunctions().reverse();
 
+			var myfunc = null;
 			for (var func of allFuncs) {
 				if (func.get("num") <= lineAt) {
-					if (func.get("fname").startsWith("test_") ||
-						func.get("isClass") === true)
-					{
-						return func.get("fname");
+					if (func.get("isClass") === true) {
+						if (myfunc === null) {
+							return func.get("fname");
+						} else {
+							return func.get("fname") + "." + myfunc;
+						}
+					} else if (func.get("fname").startsWith("test_")) {
+						myfunc = func.get("fname");
 					}
 				}
 			}
@@ -121,8 +127,24 @@ export function activate(context: vscode.ExtensionContext) {
 			"name": "openstack-tox.run-debug",
 			"func": () => {
 				var testPath = getTestPath();
+
 				if (testPath) {
+					// For debugging.
 					vscode.window.showInformationMessage(testPath);
+
+					var ws = vscode.workspace.workspaceFolders![0];
+
+					// Its params are the same as definitions in launch.json.
+					var conf:vscode.DebugConfiguration = {
+						name: "hoge",  // arbitrary name
+						request: "launch",
+						type: "python",
+						module: "unittest",
+						env: {},
+						args: [testPath]
+					};
+
+					var dbg = vscode.debug.startDebugging(ws, conf);
 				}
 			}
 		},
@@ -130,7 +152,7 @@ export function activate(context: vscode.ExtensionContext) {
 			 "name": "openstack-tox.run-test",
 			 "func": () => {
 				vscode.window.showInformationMessage(
-					'Run tox test command atline');
+					'Run tox test command at line');
 			}
 		},
 	];
@@ -141,7 +163,6 @@ export function activate(context: vscode.ExtensionContext) {
 			cmd["name"], cmd["func"]!);
 		context.subscriptions.push(disposable);
 	}
-
 }
 
 // this method is called when your extension is deactivated

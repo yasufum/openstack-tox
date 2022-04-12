@@ -1,5 +1,5 @@
 {
-  "name": "openstack-tox",
+	"name": "openstack-tox",
 	"displayName": "openstack-tox",
 	"description": "",
 	"version": "0.0.1",
@@ -10,43 +10,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onDebug",
-        "onCommand:openstack-tox.run-tox",
-        "onCommand:openstack-tox.run-debug",
-        "onCommand:openstack-tox.run-test"
+		"onCommand:openstack-tox.run-tox",
+		"onCommand:openstack-tox.run-debug",
+		"onCommand:openstack-tox.run-test"
 	],
-	
+
 	"main": "./out/extension.js",
 
 	"contributes": {
-		"debuggers": [
-			{
-				"type": "mock",
-				"label": "My openstack mock debug",
-				"program": "./out/mockDebug.js",
-				"runtime": "node",
-				"configurationAttributes": {
-					"launch": {
-						"required": [
-							"program"
-						],
-						"properties": {
-							"program": {
-								"type": "string",
-								"description": "Absolute path to a text file.",
-								"default": "${workspaceFolder}/${command:AskForProgramName}"
-							},
-							"stopOnEntry": {
-								"type": "boolean",
-								"description": "Automatically stop after launch.",
-								"default": true
-							}
-						}
-					}
-				}
-			}
-		],
-		
 		"commands": [
 			{
 				"command": "openstack-tox.run-tox",
@@ -83,16 +54,16 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.65.0",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.1.0",
 		"@types/node": "14.x",
+		"@types/vscode": "^1.65.0",
 		"@typescript-eslint/eslint-plugin": "^5.16.0",
 		"@typescript-eslint/parser": "^5.16.0",
+		"@vscode/test-electron": "^2.1.3",
 		"eslint": "^8.11.0",
 		"glob": "^7.2.0",
 		"mocha": "^9.2.2",
-		"typescript": "^4.5.5",
-		"@vscode/test-electron": "^2.1.3"
+		"typescript": "^4.6.3"
 	}
 }
