@@ -10,8 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:openstack-tox.run-tox",
-		"onCommand:openstack-tox.run-debug",
+		"onCommand:openstack-tox.run-tox-help",
+		"onCommand:openstack-tox.debug-unittest",
 		"onCommand:openstack-tox.run-test"
 	],
 
@@ -20,12 +20,12 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "openstack-tox.run-tox",
-				"title": "OpenStack Tox: Run Tox"
+				"command": "openstack-tox.run-tox-help",
+				"title": "OpenStack Tox: Run tox -h"
 			},
 			{
-				"command": "openstack-tox.run-debug",
-				"title": "OpenStack Tox: Run Debug"
+				"command": "openstack-tox.debug-unittest",
+				"title": "OpenStack Tox: Debug unittest of current pos"
 			},
 			{
 				"command": "openstack-tox.run-test",
@@ -35,7 +35,7 @@
 		"menus": {
 			"commandPalette": [
 				{
-					"command": "openstack-tox.run-debug",
+					"command": "openstack-tox.debug-unittest",
 					"when": "editorLangId == python"
 				},
 				{
