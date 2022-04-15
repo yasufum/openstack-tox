@@ -11,6 +11,7 @@
 	],
 	"activationEvents": [
 		"onCommand:openstack-tox.run-tox-help",
+		"onCommand:openstack-tox.init-tox-env",
 		"onCommand:openstack-tox.debug-unittest",
 		"onCommand:openstack-tox.run-test"
 	],
@@ -24,12 +25,16 @@
 				"title": "OpenStack Tox: Run tox -h"
 			},
 			{
+				"command": "openstack-tox.init-tox-env",
+				"title": "OpenStack Tox: Init Tox Env"
+			},
+			{
 				"command": "openstack-tox.debug-unittest",
-				"title": "OpenStack Tox: Debug unittest of current pos"
+				"title": "OpenStack Tox: Debug Unittest"
 			},
 			{
 				"command": "openstack-tox.run-test",
-				"title": "OpenStack Tox: Run Test"
+				"title": "OpenStack Tox: Run Unittest"
 			}
 		],
 		"menus": {

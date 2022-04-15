@@ -31,6 +31,23 @@ export function activate(context: vscode.ExtensionContext) {
 				cp.exec('tox -h', showResult);
 			}
 		},
+		{
+			// Run `tox --notest` for setting up tox env.
+			"name": "openstack-tox.init-tox-env",
+			"func": async () => {
+				vscode.window.showInformationMessage("Initializing tox environment ...");
+				vscode.window.withProgress({
+					location: vscode.ProgressLocation.Window,
+					cancellable: false,
+					title: "Initializing tox environment ..."
+				}, async (progress) => {
+					const cmd = 'cd ' + wsPath + '; tox --notest; tox -e debug --notest';
+					const cp = require('child_process').exec(cmd);
+					await new Promise((resolve) => { cp.on('close', resolve); });
+					vscode.window.showInformationMessage("Done installing tox environment.");
+				});
+			}
+		},
 		{ 
 			"name": "openstack-tox.debug-unittest",
 			"func": async () => {
