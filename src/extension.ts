@@ -3,11 +3,15 @@
 import { kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
+
 import {getTestPath} from './py_unittest';
 
 export function activate(context: vscode.ExtensionContext) {
 	
 	console.log('"openstack-tox" is now active!');
+
+    const ws = vscode.workspace.workspaceFolders![0];
+	const wsPath = ws.uri.path;
 
 	let showResult = (err: string, stdout: string, stderr: string) => {
 			console.log('stdout: ' + stdout);
@@ -29,26 +33,43 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 		{ 
 			"name": "openstack-tox.debug-unittest",
-			"func": () => {
-				var testPath = getTestPath();
+			"func": async () => {
+				const fs = require('fs');
+				if (!fs.existsSync(wsPath + "/.tox/debug")) {
+					vscode.window.showWarningMessage("No debug environment configured.");
+					vscode.window.showInformationMessage("Initializing debug environment ...");
+					vscode.window.withProgress({
+						location: vscode.ProgressLocation.Window,
+						cancellable: false,
+						title: "Initializing debug environment ..."
+					}, async (progress) => {
+						const cmd = 'cd ' + wsPath + '; tox -e debug --notest';
+						const cp = require('child_process').exec(cmd);
+						await new Promise((resolve) => {cp.on('close', resolve);});
+						vscode.window.showInformationMessage("Done installing debug environment.");
+					});
+				} else {
+					var testPath = getTestPath();
 
-				if (testPath) {
-					// For debugging.
-					vscode.window.showInformationMessage(testPath);
+					if (testPath) {
+						// For debugging.
+						vscode.window.showInformationMessage(testPath);
+						const vnevDebugPython = wsPath + "/.tox/debug/bin/python3";
+						vscode.window.showInformationMessage(vnevDebugPython);
 
-					var ws = vscode.workspace.workspaceFolders![0];
+						// Its params are the same as definitions in launch.json.
+						var conf: vscode.DebugConfiguration = {
+							name: "Debug Unittest",  // arbitrary name
+							request: "launch",
+							type: "python",
+							module: "unittest",
+							env: {},
+							pythonPath: vnevDebugPython,
+							args: [testPath]
+						};
 
-					// Its params are the same as definitions in launch.json.
-					var conf:vscode.DebugConfiguration = {
-						name: "Debug Unittest",  // arbitrary name
-						request: "launch",
-						type: "python",
-						module: "unittest",
-						env: {},
-						args: [testPath]
-					};
-
-					var dbg = vscode.debug.startDebugging(ws, conf);
+						var dbg = vscode.debug.startDebugging(ws, conf);
+					}
 				}
 			}
 		},
