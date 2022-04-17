@@ -25,10 +25,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// Setup all command names and its definitions here.
 	let commands = [
 		{
-			"name": "openstack-tox.run-tox-help",
-			"func": () => {
-				const cp = require('child_process');
-				cp.exec('tox -h', showResult);
+			"name": "openstack-tox.compile-docs",
+			"func": async () => {
+				vscode.window.showInformationMessage("Compiling docs ...");
+				vscode.window.withProgress({
+					location: vscode.ProgressLocation.Window,
+					cancellable: false,
+					title: "Compiling docs ..."
+				}, async (progress) => {
+					const cmd = 'cd ' + wsPath + '; tox -e docs';
+					const cp = require('child_process').exec(cmd);
+					await new Promise((resolve) => { cp.on('close', resolve); });
+					vscode.window.showInformationMessage("Done Compile docs.");
+				});
 			}
 		},
 		{

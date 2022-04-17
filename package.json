@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:openstack-tox.run-tox-help",
+		"onCommand:openstack-tox.compile-docs",
 		"onCommand:openstack-tox.init-tox-env",
 		"onCommand:openstack-tox.debug-unittest",
 		"onCommand:openstack-tox.run-test"
@@ -21,8 +21,8 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "openstack-tox.run-tox-help",
-				"title": "OpenStack Tox: Run tox -h"
+				"command": "openstack-tox.compile-docs",
+				"title": "OpenStack Tox: Compile Docs"
 			},
 			{
 				"command": "openstack-tox.init-tox-env",
