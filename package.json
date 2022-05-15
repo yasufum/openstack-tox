@@ -11,9 +11,9 @@
 	],
 	"activationEvents": [
 		"onCommand:openstack-tox.compile-docs",
-		"onCommand:openstack-tox.init-tox-env",
+		"onCommand:openstack-tox.setup-tox-env",
 		"onCommand:openstack-tox.debug-unittest",
-		"onCommand:openstack-tox.run-test"
+		"onCommand:openstack-tox.run-dummy-test"
 	],
 
 	"main": "./out/extension.js",
@@ -25,7 +25,7 @@
 				"title": "OpenStack Tox: Compile Docs"
 			},
 			{
-				"command": "openstack-tox.init-tox-env",
+				"command": "openstack-tox.setup-tox-env",
 				"title": "OpenStack Tox: Init Tox Env"
 			},
 			{
@@ -33,8 +33,8 @@
 				"title": "OpenStack Tox: Debug Unittest"
 			},
 			{
-				"command": "openstack-tox.run-test",
-				"title": "OpenStack Tox: Run Unittest"
+				"command": "openstack-tox.run-dummy-test",
+				"title": "OpenStack Tox: Run dummy test"
 			}
 		],
 		"menus": {
@@ -44,7 +44,7 @@
 					"when": "editorLangId == python"
 				},
 				{
-					"command": "openstack-tox.run-test",
+					"command": "openstack-tox.run-dummy-test",
 					"when": "editorLangId == python"
 				}
 			]

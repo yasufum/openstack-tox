@@ -27,9 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			"name": "openstack-tox.compile-docs",
 			"func": async () => {
-				vscode.window.showInformationMessage("Compiling docs ...");
 				vscode.window.withProgress({
-					location: vscode.ProgressLocation.Window,
+					location: vscode.ProgressLocation.Notification,
 					cancellable: false,
 					title: "Compiling docs ..."
 				}, async (progress) => {
@@ -42,18 +41,17 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 		{
 			// Run `tox --notest` for setting up tox env.
-			"name": "openstack-tox.init-tox-env",
+			"name": "openstack-tox.setup-tox-env",
 			"func": async () => {
-				vscode.window.showInformationMessage("Initializing tox environment ...");
 				vscode.window.withProgress({
-					location: vscode.ProgressLocation.Window,
+					location: vscode.ProgressLocation.Notification,
 					cancellable: false,
-					title: "Initializing tox environment ..."
+					title: "Setup for running tox ..."
 				}, async (progress) => {
 					const cmd = 'cd ' + wsPath + '; tox --notest; tox -e debug --notest';
 					const cp = require('child_process').exec(cmd);
 					await new Promise((resolve) => { cp.on('close', resolve); });
-					vscode.window.showInformationMessage("Done installing tox environment.");
+					vscode.window.showInformationMessage("Done. Run the debug again!");
 				});
 			}
 		},
@@ -62,12 +60,11 @@ export function activate(context: vscode.ExtensionContext) {
 			"func": async () => {
 				const fs = require('fs');
 				if (!fs.existsSync(wsPath + "/.tox/debug")) {
-					vscode.window.showWarningMessage("No debug environment configured.");
-					vscode.window.showInformationMessage("Initializing debug environment ...");
+					vscode.window.showWarningMessage("No debug environment installed.");
 					vscode.window.withProgress({
-						location: vscode.ProgressLocation.Window,
+						location: vscode.ProgressLocation.Notification,
 						cancellable: false,
-						title: "Initializing debug environment ..."
+						title: "Installing debug environment ..."
 					}, async (progress) => {
 						const cmd = 'cd ' + wsPath + '; tox -e debug --notest';
 						const cp = require('child_process').exec(cmd);
@@ -100,10 +97,10 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		},
 		{
-			 "name": "openstack-tox.run-test",
+			 "name": "openstack-tox.run-dummy-test",
 			 "func": () => {
 				vscode.window.showInformationMessage(
-					'Run tox test command at line');
+					'Run dummy test command...');
 			}
 		},
 	];
