@@ -4,22 +4,22 @@ import { kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
 
-import {getTestPath} from './py_unittest';
+import { getTestPath } from './py_unittest';
 
 export function activate(context: vscode.ExtensionContext) {
-	
+
 	console.log('"openstack-tox" is now active!');
 
-    const ws = vscode.workspace.workspaceFolders![0];
+	const ws = vscode.workspace.workspaceFolders![0];
 	const wsPath = ws.uri.path;
 
 	let showResult = (err: string, stdout: string, stderr: string) => {
-			console.log('stdout: ' + stdout);
-			console.log('stderr: ' + stderr);
-			if (err) {
-				console.log('error: ' + err);
-			}
-		    vscode.window.showInformationMessage(stdout);
+		console.log('stdout: ' + stdout);
+		console.log('stderr: ' + stderr);
+		if (err) {
+			console.log('error: ' + err);
+		}
+		vscode.window.showInformationMessage(stdout);
 	};
 
 	// Setup all command names and its definitions here.
@@ -30,9 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.withProgress({
 					location: vscode.ProgressLocation.Notification,
 					cancellable: false,
-					title: "Compiling docs ..."
+					title: "Compiling docs"
 				}, async (progress) => {
-					const cmd = 'cd ' + wsPath + '; tox -e docs';
+					const cmd = `cd ${wsPath}; tox -e docs`;
 					const cp = require('child_process').exec(cmd);
 					await new Promise((resolve) => { cp.on('close', resolve); });
 					vscode.window.showInformationMessage("Done Compile docs.");
@@ -46,29 +46,29 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.withProgress({
 					location: vscode.ProgressLocation.Notification,
 					cancellable: false,
-					title: "Setup for running tox ..."
+					title: "Setup for running tox"
 				}, async (progress) => {
-					const cmd = 'cd ' + wsPath + '; tox --notest; tox -e debug --notest';
+					const cmd = `cd ${wsPath}; tox --notest; tox -e debug --notest`;
 					const cp = require('child_process').exec(cmd);
 					await new Promise((resolve) => { cp.on('close', resolve); });
-					vscode.window.showInformationMessage("Done. Run the debug again!");
+					vscode.window.showInformationMessage("Done!");
 				});
 			}
 		},
-		{ 
+		{
 			"name": "openstack-tox.debug-unittest",
 			"func": async () => {
 				const fs = require('fs');
-				if (!fs.existsSync(wsPath + "/.tox/debug")) {
+				if (!fs.existsSync(`${wsPath}/.tox/debug`)) {
 					vscode.window.showWarningMessage("No debug environment installed.");
 					vscode.window.withProgress({
 						location: vscode.ProgressLocation.Notification,
 						cancellable: false,
-						title: "Installing debug environment ..."
+						title: "Installing debug environment"
 					}, async (progress) => {
-						const cmd = 'cd ' + wsPath + '; tox -e debug --notest';
+						const cmd = `cd ${wsPath}; tox -e debug --notest`;
 						const cp = require('child_process').exec(cmd);
-						await new Promise((resolve) => {cp.on('close', resolve);});
+						await new Promise((resolve) => { cp.on('close', resolve); });
 						vscode.window.showInformationMessage("Done installing debug environment.");
 					});
 				} else {
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 					if (testPath) {
 						// For debugging.
 						vscode.window.showInformationMessage(testPath);
-						const vnevDebugPython = wsPath + "/.tox/debug/bin/python3";
+						const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
 						vscode.window.showInformationMessage(vnevDebugPython);
 
 						// Its params are the same as definitions in launch.json.
@@ -97,10 +97,10 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		},
 		{
-			 "name": "openstack-tox.run-dummy-test",
-			 "func": () => {
+			"name": "openstack-tox.run-dummy-test",
+			"func": () => {
 				vscode.window.showInformationMessage(
-					'Run dummy test command...');
+					'Run dummy test command');
 			}
 		},
 	];
@@ -114,4 +114,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
