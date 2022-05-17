@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { kill } from 'process';
+import { execPath, kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
 
@@ -32,8 +32,11 @@ export function activate(context: vscode.ExtensionContext) {
 					cancellable: false,
 					title: "Compiling docs"
 				}, async (progress) => {
-					const cmd = `cd ${wsPath}; tox -e docs`;
-					const cp = require('child_process').exec(cmd);
+					const cmds = [
+						`cd ${wsPath}`,
+						"tox -e docs"
+					];
+					const cp = require('child_process').exec(cmds.join("; "));
 					await new Promise((resolve) => { cp.on('close', resolve); });
 					vscode.window.showInformationMessage("Done Compile docs.");
 				});
@@ -48,8 +51,12 @@ export function activate(context: vscode.ExtensionContext) {
 					cancellable: false,
 					title: "Setup for running tox"
 				}, async (progress) => {
-					const cmd = `cd ${wsPath}; tox --notest; tox -e debug --notest`;
-					const cp = require('child_process').exec(cmd);
+					const cmds = [
+						`cd ${wsPath}`,
+						"tox --notest",
+						"tox -e debug --notest"
+					];
+					const cp = require('child_process').exec(cmds.join("; "));
 					await new Promise((resolve) => { cp.on('close', resolve); });
 					vscode.window.showInformationMessage("Done!");
 				});
@@ -59,6 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 			"name": "openstack-tox.debug-unittest",
 			"func": async () => {
 				const fs = require('fs');
+
 				if (!fs.existsSync(`${wsPath}/.tox/debug`)) {
 					vscode.window.showWarningMessage("No debug environment installed.");
 					vscode.window.withProgress({
@@ -80,18 +88,49 @@ export function activate(context: vscode.ExtensionContext) {
 						const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
 						vscode.window.showInformationMessage(vnevDebugPython);
 
-						// Its params are the same as definitions in launch.json.
-						var conf: vscode.DebugConfiguration = {
-							name: "Debug Unittest",  // arbitrary name
-							request: "launch",
-							type: "python",
-							module: "unittest",
-							env: {},
-							pythonPath: vnevDebugPython,
-							args: [testPath]
-						};
+						const cp = require("child_process");
 
-						var dbg = vscode.debug.startDebugging(ws, conf);
+						const testDir = `${wsPath}/tacker/tests`;
+						const mod = "testtools.run";
+
+						// TODO: Enable debug multi-threaded test with ddt. There're two strategies,
+						//       using "discover --load-list LISTFILE" as same as tox's manner, or
+						//       loading each testpath in LISTFILE and run each test. Although tried
+						//       the strategies once, both are failed. I need to have some more studies.
+						//const output = `${wsPath}/all_tests.txt`;
+						//const output2 = `${wsPath}/one_tests.txt`;
+						//let cmds = [
+						//	`cd ${wsPath}`,
+						//	`${vnevDebugPython} -m ${mod} discover -t ${wsPath} ${testDir} --list > ${output}`,
+						//	`grep "${testPath}" < ${output} > ${output2}`
+						//];
+						//const cp1 = require('child_process').exec(cmds.join("; "));
+						//await new Promise((resolve) => { cp1.on('close', resolve); });
+
+						await new Promise((resolve) => {
+							//var fpath = output2;
+							//var contents = fs.readFileSync(fpath);
+							//let ary = contents.toString().split("\n");
+							//let tPaths = new Array();
+							//for (var i = 0; i < ary.length; i++) {
+							//	if (ary[i] !== "") {
+							//		tPaths.push(ary[i]);
+							//	}
+							//}
+
+							// Its params are the same as definitions in launch.json.
+							var conf: vscode.DebugConfiguration = {
+								name: "Debug Unittest",  // arbitrary name
+								request: "launch",
+								type: "python",
+								module: "testtools.run",
+								env: {},
+								subProcess: true,  // Does it work for greenlet multithreads?
+								pythonPath: vnevDebugPython,
+								args: [testPath]
+							};
+							var dbg = vscode.debug.startDebugging(ws, conf);
+						});
 					}
 				}
 			}
