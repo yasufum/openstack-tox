@@ -13,14 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const ws = vscode.workspace.workspaceFolders![0];
 	const wsPath = ws.uri.path;
 
-	let showResult = (err: string, stdout: string, stderr: string) => {
-		console.log('stdout: ' + stdout);
-		console.log('stderr: ' + stderr);
-		if (err) {
-			console.log('error: ' + err);
-		}
-		vscode.window.showInformationMessage(stdout);
-	};
+	const sofMsgOnNotification = 10; // Size of messages on notification location.
 
 	// Setup all command names and its definitions here.
 	let commands = [
@@ -37,7 +30,18 @@ export function activate(context: vscode.ExtensionContext) {
 						"tox -e docs"
 					];
 					const cp = require('child_process').exec(cmds.join("; "));
-					await new Promise((resolve) => { cp.on('close', resolve); });
+					let msgs = new Array();
+					await new Promise((resolve) => {
+						cp.stdout.on('data', (data: any) => {
+							if (msgs.length > sofMsgOnNotification) {
+								msgs.shift();
+							}
+							msgs.push(data.toString());
+							progress.report({message: msgs.join("\n")});
+						});
+
+						cp.on('close', resolve);
+					 });
 					vscode.window.showInformationMessage("Done Compile docs.");
 				});
 			}
@@ -57,7 +61,17 @@ export function activate(context: vscode.ExtensionContext) {
 						"tox -e debug --notest"
 					];
 					const cp = require('child_process').exec(cmds.join("; "));
-					await new Promise((resolve) => { cp.on('close', resolve); });
+					let msgs = new Array();
+					await new Promise((resolve) => {
+						cp.stdout.on('data', (data: any) => {
+							if (msgs.length > sofMsgOnNotification) {
+								msgs.shift();
+							}
+							msgs.push(data.toString());
+							progress.report({message: msgs.join("\n")});
+						});
+						cp.on('close', resolve);
+					});
 					vscode.window.showInformationMessage("Done!");
 				});
 			}
@@ -76,7 +90,18 @@ export function activate(context: vscode.ExtensionContext) {
 					}, async (progress) => {
 						const cmd = `cd ${wsPath}; tox -e debug --notest`;
 						const cp = require('child_process').exec(cmd);
-						await new Promise((resolve) => { cp.on('close', resolve); });
+						let msgs = new Array();
+						await new Promise((resolve) => {
+							cp.stdout.on('data', (data: any) => {
+								if (msgs.length > sofMsgOnNotification) {
+									msgs.shift();
+								}
+								msgs.push(data.toString());
+								progress.report({ message: msgs.join("\n") });
+							});
+
+							cp.on('close', resolve);
+						});
 						vscode.window.showInformationMessage("Done installing debug environment.");
 					});
 				} else {
