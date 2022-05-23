@@ -13,7 +13,7 @@
 		"onCommand:openstack-tox.compile-docs",
 		"onCommand:openstack-tox.setup-tox-env",
 		"onCommand:openstack-tox.debug-unittest",
-		"onCommand:openstack-tox.run-dummy-test"
+		"onCommand:openstack-tox.run-unittest"
 	],
 
 	"main": "./out/extension.js",
@@ -33,8 +33,8 @@
 				"title": "OpenStack Tox: Debug Unittest"
 			},
 			{
-				"command": "openstack-tox.run-dummy-test",
-				"title": "OpenStack Tox: Run dummy test"
+				"command": "openstack-tox.run-unittest",
+				"title": "OpenStack Tox: Run Unittest"
 			}
 		],
 		"menus": {
@@ -44,7 +44,7 @@
 					"when": "editorLangId == python"
 				},
 				{
-					"command": "openstack-tox.run-dummy-test",
+					"command": "openstack-tox.run-unittest",
 					"when": "editorLangId == python"
 				}
 			]

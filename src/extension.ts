@@ -12,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const ws = vscode.workspace.workspaceFolders![0];
 	const wsPath = ws.uri.path;
+	const defaultPython = "py38";
 
 	const sofMsgOnNotification = 10; // Size of messages on notification location.
 
@@ -109,14 +110,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 					if (testPath) {
 						// For debugging.
-						vscode.window.showInformationMessage(testPath);
 						const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
-						vscode.window.showInformationMessage(vnevDebugPython);
 
 						const cp = require("child_process");
 
 						const testDir = `${wsPath}/tacker/tests`;
-						const mod = "testtools.run";
+						//const mod = "testtools.run";
+						const mod = "unittest";
 
 						// TODO: Enable debug multi-threaded test with ddt. There're two strategies,
 						//       using "discover --load-list LISTFILE" as same as tox's manner, or
@@ -132,7 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
 						//const cp1 = require('child_process').exec(cmds.join("; "));
 						//await new Promise((resolve) => { cp1.on('close', resolve); });
 
-						await new Promise((resolve) => {
+						//await new Promise((resolve) => {
 							//var fpath = output2;
 							//var contents = fs.readFileSync(fpath);
 							//let ary = contents.toString().split("\n");
@@ -148,23 +148,38 @@ export function activate(context: vscode.ExtensionContext) {
 								name: "Debug Unittest",  // arbitrary name
 								request: "launch",
 								type: "python",
-								module: "testtools.run",
+								module: mod,
 								env: {},
 								subProcess: true,  // Does it work for greenlet multithreads?
+								console: "integratedTerminal",
 								pythonPath: vnevDebugPython,
 								args: [testPath]
 							};
 							var dbg = vscode.debug.startDebugging(ws, conf);
-						});
+						//});
 					}
 				}
 			}
 		},
 		{
-			"name": "openstack-tox.run-dummy-test",
-			"func": () => {
-				vscode.window.showInformationMessage(
-					'Run dummy test command');
+			"name": "openstack-tox.run-unittest",
+			"func": async () => {
+				vscode.window.showInformationMessage("Running unittest on terminal.");
+				var testPath = getTestPath();
+				let cmds = [
+					"pushd .",
+					`cd ${wsPath}`,
+					`tox -e ${defaultPython}`,
+					"popd"
+				];
+				if (testPath) {
+					cmds[2] = `tox -e ${defaultPython} ${testPath}`;
+				}
+				console.log(cmds[2]);
+
+				// TODO: Change to show the results on another pane as a read-only text.
+				let term = vscode.window.activeTerminal;
+				term?.sendText(cmds.join("; "));
 			}
 		},
 	];
