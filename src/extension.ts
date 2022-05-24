@@ -1,10 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { fstat } from 'fs';
 import { execPath, kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
 
 import { getTestPath } from './py_unittest';
+
+let tmpdirPath = ""; // contains files for unittest's test path list.
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -15,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const defaultPython = "py38";
 
 	const sofMsgOnNotification = 10; // Size of messages on notification location.
+
 
 	// Setup all command names and its definitions here.
 	let commands = [
@@ -80,7 +84,13 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			"name": "openstack-tox.debug-unittest",
 			"func": async () => {
+				const cp = require("child_process");
 				const fs = require('fs');
+				const os = require("os");
+
+				// Create a directory for containing files of list of unittest's test path.
+				const randomDirName = require("crypto").createHash("md5").update("hoge").digest("hex");
+				tmpdirPath = `${os.tmpdir()}/vscode-ext/openstack-tox/${randomDirName}`;
 
 				if (!fs.existsSync(`${wsPath}/.tox/debug`)) {
 					vscode.window.showWarningMessage("No debug environment installed.");
@@ -89,11 +99,11 @@ export function activate(context: vscode.ExtensionContext) {
 						cancellable: false,
 						title: "Installing debug environment"
 					}, async (progress) => {
-						const cmd = `cd ${wsPath}; tox -e debug --notest`;
-						const cp = require('child_process').exec(cmd);
+						const cmds = [`cd ${wsPath}`, "tox -e debug --notest"];
+						const cpSetupDbg = cp.exec(cmds.join("; "));
 						let msgs = new Array();
 						await new Promise((resolve) => {
-							cp.stdout.on('data', (data: any) => {
+							cpSetupDbg.stdout.on('data', (data: any) => {
 								if (msgs.length > sofMsgOnNotification) {
 									msgs.shift();
 								}
@@ -101,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
 								progress.report({ message: msgs.join("\n") });
 							});
 
-							cp.on('close', resolve);
+							cpSetupDbg.on('close', resolve);
 						});
 						vscode.window.showInformationMessage("Done installing debug environment.");
 					});
@@ -111,52 +121,40 @@ export function activate(context: vscode.ExtensionContext) {
 					if (testPath) {
 						// For debugging.
 						const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
-
-						const cp = require("child_process");
+						const mod = "testtools.run";
 
 						const testDir = `${wsPath}/tacker/tests`;
-						//const mod = "testtools.run";
-						const mod = "unittest";
+						const cpMkdir = cp.exec(`mkdir -p ${tmpdirPath}`);
+						await new Promise((resolve) => { cpMkdir.on('close', resolve); });
 
-						// TODO: Enable debug multi-threaded test with ddt. There're two strategies,
-						//       using "discover --load-list LISTFILE" as same as tox's manner, or
-						//       loading each testpath in LISTFILE and run each test. Although tried
-						//       the strategies once, both are failed. I need to have some more studies.
-						//const output = `${wsPath}/all_tests.txt`;
-						//const output2 = `${wsPath}/one_tests.txt`;
-						//let cmds = [
-						//	`cd ${wsPath}`,
-						//	`${vnevDebugPython} -m ${mod} discover -t ${wsPath} ${testDir} --list > ${output}`,
-						//	`grep "${testPath}" < ${output} > ${output2}`
-						//];
-						//const cp1 = require('child_process').exec(cmds.join("; "));
-						//await new Promise((resolve) => { cp1.on('close', resolve); });
+						// Path of test path generated via oslo_debug_helper script. Two files will be generated
+						// while running the script. You can refer the details by running
+						// `cat $(which oslo_debug_helper)`.
+						const outputAll = `${tmpdirPath}/all_tests.txt`;
+						const outputOne = `${tmpdirPath}/one_tests.txt`;
 
-						//await new Promise((resolve) => {
-							//var fpath = output2;
-							//var contents = fs.readFileSync(fpath);
-							//let ary = contents.toString().split("\n");
-							//let tPaths = new Array();
-							//for (var i = 0; i < ary.length; i++) {
-							//	if (ary[i] !== "") {
-							//		tPaths.push(ary[i]);
-							//	}
-							//}
+						let cmds = [
+							`cd ${wsPath}`,
+							`${vnevDebugPython} -m ${mod} discover -t ${wsPath} ${testDir} --list > ${outputAll}`,
+							`grep "${testPath}" < ${outputAll} > ${outputOne}`
+						];
+						const cp1 = cp.exec(cmds.join("; "));
+						await new Promise((resolve) => { cp1.on('close', resolve); });
 
-							// Its params are the same as definitions in launch.json.
-							var conf: vscode.DebugConfiguration = {
-								name: "Debug Unittest",  // arbitrary name
-								request: "launch",
-								type: "python",
-								module: mod,
-								env: {},
-								subProcess: true,  // Does it work for greenlet multithreads?
-								console: "integratedTerminal",
-								pythonPath: vnevDebugPython,
-								args: [testPath]
-							};
-							var dbg = vscode.debug.startDebugging(ws, conf);
-						//});
+						// Its params are the same as definitions in launch.json.
+						var conf: vscode.DebugConfiguration = {
+							name: "Debug Unittest",  // arbitrary name
+							request: "launch",
+							type: "python",
+							module: mod,
+							env: {},
+							subProcess: true,  // Does it work for greenlet multithreads?
+							console: "integratedTerminal",
+							gevent: true,
+							pythonPath: vnevDebugPython,
+							args: ["discover", "--load-list", outputOne],
+						};
+						var dbg = vscode.debug.startDebugging(ws, conf);
 					}
 				}
 			}
@@ -183,6 +181,14 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		},
 	];
+
+	// Remove temporary files used for debugging as finalization.
+	context.subscriptions.push(vscode.debug.onDidTerminateDebugSession(
+		() => {
+			const fs = require('fs');
+			fs.rmSync(tmpdirPath, { recursive: true, force: true });
+		}
+	));
 
 	for (let i = 0; i < commands.length; i++) {
 		let cmd = commands[i];
