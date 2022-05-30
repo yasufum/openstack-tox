@@ -180,6 +180,27 @@ export function activate(context: vscode.ExtensionContext) {
 				term?.sendText(cmds.join("; "));
 			}
 		},
+		{
+			"name": "openstack-tox.attach-tacker-server",
+			"func": async () => {
+				const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
+
+				var conf: vscode.DebugConfiguration = {
+					name: "Attach Tacker Server",  // arbitrary name
+					request: "attach",
+					type: "python",
+					env: {},
+					subProcess: true,  // Does it work for greenlet multithreads?
+					//pythonPath: vnevDebugPython,
+					args: [],
+					connect: {
+						host: "localhost",
+						port: 5678
+					}
+				};
+				var dbg = vscode.debug.startDebugging(ws, conf);
+			}
+		},
 	];
 
 	// Remove temporary files used for debugging as finalization.

@@ -1,8 +1,13 @@
 {
 	"name": "openstack-tox",
-	"displayName": "openstack-tox",
+	"displayName": "Tox helper tool for developing OpenStack",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"author": {
+		"name": "Yasufumi Ogawa",
+		"email": "yasufum.o@gmail.com"
+	},
+	"publisher": "yasufum",
 	"engines": {
 		"vscode": "^1.65.0"
 	},
@@ -13,7 +18,8 @@
 		"onCommand:openstack-tox.compile-docs",
 		"onCommand:openstack-tox.setup-tox-env",
 		"onCommand:openstack-tox.debug-unittest",
-		"onCommand:openstack-tox.run-unittest"
+		"onCommand:openstack-tox.run-unittest",
+		"onCommand:openstack-tox.attach-tacker-server"
 	],
 
 	"main": "./out/extension.js",
@@ -35,6 +41,10 @@
 			{
 				"command": "openstack-tox.run-unittest",
 				"title": "OpenStack Tox: Run Unittest"
+			},
+			{
+				"command": "openstack-tox.attach-tacker-server",
+				"title": "OpenStack Tox: Attach Tacker Server"
 			}
 		],
 		"menus": {
@@ -49,6 +59,9 @@
 				}
 			]
 		}
+	},
+	"publishConfig": {
+		"registry": "http://192.168.1.59:4873"
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
