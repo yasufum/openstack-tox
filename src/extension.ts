@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const ws = vscode.workspace.workspaceFolders![0];
 	const wsPath = ws.uri.path;
-	const defaultPython = "py38";
+	const defaultPython = "py310";
 
 	const sofMsgOnNotification = 10; // Size of messages on notification location.
 
@@ -171,7 +171,7 @@ export function activate(context: vscode.ExtensionContext) {
 					"popd"
 				];
 				if (testPath) {
-					cmds[2] = `tox -e ${defaultPython} ${testPath}`;
+					cmds[2] = `tox -e ${defaultPython} -- ${testPath}`;
 				}
 				console.log(cmds[2]);
 
