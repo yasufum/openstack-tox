@@ -26,3 +26,13 @@ Support basic jobs of tox.
 ### 0.0.2
 
 Improve debugging features.
+
+### 0.0.7
+
+* Update default python version from 3.8 to 3.10.
+* Fix a test path given to tox command should be separated with "--" on a command line.
+* Fix some other bugs.
+
+### 0.0.8
+
+* Support other than tacker for debugging.

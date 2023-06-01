@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { fstat } from 'fs';
+import { fstat, readdirSync } from 'fs';
 import { execPath, kill } from 'process';
 import internal = require('stream');
 import * as vscode from 'vscode';
@@ -8,6 +8,35 @@ import * as vscode from 'vscode';
 import { getTestPath } from './py_unittest';
 
 let tmpdirPath = ""; // contains files for unittest's test path list.
+
+// Find name of source dir under a project of OpenStack, for example "tacker" for
+// its source dir "tacker/tacker", "nova" for "nova/nova" or so. This method is required
+// for a case in which some projects have different name of source such as
+// "tosca-parser/toscaparser" or "kolla-ansible/kolla_ansible".
+let projSrcDir= (wspath: string): string => {
+	const wsPathAry= wspath.split("/");
+	const projName = wsPathAry[wsPathAry.length - 1];  // Same as dir name of project root.
+
+	// Using filtering to extract only the most possible candidates.
+	const dirsWs = readdirSync(wspath, {withFileTypes: true})
+		.filter(ent => ent.isDirectory())
+		.map(dir => dir.name)
+		.filter(ent => !ent.startsWith("."))  // exclude dot directories.
+		.filter(ent => !ent.endsWith(".egg-info"))  // exclude egg-info dir.
+		.filter(ent => !["doc", "docs"].includes(ent));  // exclude docs dir.
+
+	// It's expected "-" in the projName is replaced with "_" or removed in the
+	// source dir name.
+	let sdir = "";
+	if (dirsWs.includes(projName.replace("-", ""))) {
+		sdir = projName.replace("-", "");
+	} else if (dirsWs.includes(projName.replace("-", "_"))) {
+		sdir = projName.replace("-", "_");
+	} else {
+		sdir = projName;
+	}
+	return sdir; 
+};
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -120,10 +149,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 					if (testPath) {
 						// For debugging.
-						const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
+						const venvDebugPython = `${wsPath}/.tox/debug/bin/python3`;
 						const mod = "testtools.run";
 
-						const testDir = `${wsPath}/tacker/tests`;
+						const testDir = `${wsPath}/${projSrcDir(wsPath)}/tests`;
 						const cpMkdir = cp.exec(`mkdir -p ${tmpdirPath}`);
 						await new Promise((resolve) => { cpMkdir.on('close', resolve); });
 
@@ -135,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 						let cmds = [
 							`cd ${wsPath}`,
-							`${vnevDebugPython} -m ${mod} discover -t ${wsPath} ${testDir} --list > ${outputAll}`,
+							`${venvDebugPython} -m ${mod} discover -t ${wsPath} ${testDir} --list > ${outputAll}`,
 							`grep "${testPath}" < ${outputAll} > ${outputOne}`
 						];
 						const cp1 = cp.exec(cmds.join("; "));
@@ -151,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
 							subProcess: true,  // Does it work for greenlet multithreads?
 							console: "integratedTerminal",
 							gevent: true,
-							pythonPath: vnevDebugPython,
+							pythonPath: venvDebugPython,
 							args: ["discover", "--load-list", outputOne],
 						};
 						var dbg = vscode.debug.startDebugging(ws, conf);
@@ -183,7 +212,7 @@ export function activate(context: vscode.ExtensionContext) {
 		{
 			"name": "openstack-tox.attach-tacker-server",
 			"func": async () => {
-				const vnevDebugPython = `${wsPath}/.tox/debug/bin/python3`;
+				const venvDebugPython = `${wsPath}/.tox/debug/bin/python3`;
 
 				var conf: vscode.DebugConfiguration = {
 					name: "Attach Tacker Server",  // arbitrary name
@@ -191,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
 					type: "python",
 					env: {},
 					subProcess: true,  // Does it work for greenlet multithreads?
-					//pythonPath: vnevDebugPython,
+					//pythonPath: venvDebugPython,
 					args: [],
 					connect: {
 						host: "localhost",
