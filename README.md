@@ -39,4 +39,4 @@ Improve debugging features.
 
 ### 0.0.9
 
-* Add `JustMyCode: false` option in debug configuration to enable debugging libs.
+* Add `justMyCode: false` option in debug configuration to enable debugging libs.

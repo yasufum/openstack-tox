@@ -222,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
 					subProcess: true,  // Does it work for greenlet multithreads?
 					//pythonPath: venvDebugPython,
 					args: [],
-					JustMyCode: false,
+					justMyCode: false,
 					connect: {
 						host: "localhost",
 						port: 5678
