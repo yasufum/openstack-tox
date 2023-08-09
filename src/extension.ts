@@ -179,6 +179,7 @@ export function activate(context: vscode.ExtensionContext) {
 							env: {},
 							subProcess: true,  // Does it work for greenlet multithreads?
 							console: "integratedTerminal",
+							justMyCode: false,
 							gevent: true,
 							pythonPath: venvDebugPython,
 							args: ["discover", "--load-list", outputOne],

@@ -2,7 +2,7 @@
 	"name": "openstack-tox",
 	"displayName": "Tox helper tool for developing OpenStack",
 	"description": "",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"author": {
 		"name": "Yasufumi Ogawa",
 		"email": "yasufum.o@gmail.com"
@@ -13,7 +13,7 @@
 	},
     "repository": "http://192.168.1.57:4873",
     "files": [
-        "openstack-tox-0.0.10.vsix"
+        "openstack-tox-0.0.11.vsix"
     ],
 	"categories": [
 		"Other"
@@ -68,7 +68,7 @@
 		"registry": "http://192.168.1.57:4873"
 	},
 	"scripts": {
-        "prepublishOnly": "vsce package -o openstack-tox-0.0.10.vsix",
+        "prepublishOnly": "vsce package -o openstack-tox-0.0.11.vsix",
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",

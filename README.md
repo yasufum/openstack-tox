@@ -39,4 +39,12 @@ Improve debugging features.
 
 ### 0.0.9
 
-* Add `justMyCode: false` option in debug configuration to enable debugging libs.
+* Add `JustMyCode: false` option in debug configuration to enable debugging libs.
+
+### 0.0.10
+
+* Fix wrong `JustMyCode` to `justMyCode`.
+
+### 0.0.11
+
+* Fix missing `justMyCode` in openstack-tox.debug-unittest.
