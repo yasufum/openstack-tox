@@ -36,3 +36,7 @@ Improve debugging features.
 ### 0.0.8
 
 * Support other than tacker for debugging.
+
+### 0.0.9
+
+* Add `JustMyCode: false` option in debug configuration to enable debugging libs.
